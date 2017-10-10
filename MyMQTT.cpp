@@ -16,47 +16,47 @@ MyMQTT::MyMQTT()
   local_mqtt = this;
 }
 
-void MyMQTT::init(const string& server, const string& name)
+void MyMQTT::init(const char* server, const char* name)
 {
-  m_server = server;
-  m_name = name;
+  strcpy(m_server, server);
+  strcpy(m_name, name);
 
   m_client.setClient(m_wifi);
-  m_client.setServer(m_server.c_str(), MQTT_PORT);
+  m_client.setServer(m_server, MQTT_PORT);
   m_client.setCallback(local_mqtt_callback);
   m_configured = true;
 }
 
-void MyMQTT::add_topic(const string& topic, void (*handler)(const string& topic, byte* payload, unsigned int length))
+void MyMQTT::add_topic(const char* topic, void (*handler)(const char* topic, byte* payload, unsigned int length))
 {
   m_handlers.push_back(hand{topic, handler});
 }
 
-void MyMQTT::add_topic(const string& topic, void (*handler)(const string& topic, const string& payload))
+void MyMQTT::add_topic(const char* topic, void (*handler)(const char* topic, const char* payload))
 {
   m_handlers.push_back(hand{topic, handler});
 }
 
-void MyMQTT::publish(const string& topic, const string& payload)
+void MyMQTT::publish(const char* topic, const char* payload)
 {
-  m_client.publish(topic.c_str(), payload.c_str());
+  m_client.publish(topic, payload);
 }
 
-void MyMQTT::publish(const string& topic, int payload)
+void MyMQTT::publish(const char* topic, int payload)
 {
   char n[8];
-  m_client.publish(topic.c_str(), itoa(payload, n, 10));
+  m_client.publish(topic, itoa(payload, n, 10));
 }
 
-void MyMQTT::publish_retain(const string& topic, const string& payload)
+void MyMQTT::publish_retain(const char* topic, const char* payload)
 {
-  m_client.publish(topic.c_str(), payload.c_str(), true);
+  m_client.publish(topic, payload, true);
 }
 
-void MyMQTT::publish_retain(const string& topic, int payload)
+void MyMQTT::publish_retain(const char* topic, int payload)
 {
   char n[8];
-  m_client.publish(topic.c_str(), itoa(payload, n, 10), true);
+  m_client.publish(topic, itoa(payload, n, 10), true);
 }
 
 
@@ -77,14 +77,14 @@ void MyMQTT::reconnect()
   static int reconnect_count = 0;
   Serial.print("Attempting MQTT connection...");
 
-  if (m_client.connect(m_name.c_str())) {
+  if (m_client.connect(m_name)) {
     Serial.println("connected");
     
     Serial.println("Subscribing to:");
     for (auto it = begin(m_handlers); it != end(m_handlers); ++it)
     {
-      Serial.println(it->topic().c_str());
-      m_client.subscribe(it->topic().c_str());
+      Serial.println(it->topic());
+      m_client.subscribe(it->topic());
     }    
   }
   else
@@ -99,13 +99,13 @@ void MyMQTT::reconnect()
   }
 }
 
-void MyMQTT::mqtt_callback(const string& topic, byte* payload, unsigned int length)
+void MyMQTT::mqtt_callback(const char* topic, byte* payload, unsigned int length)
 {
   for (auto it = begin(m_handlers); it != end(m_handlers); ++it)
   {
-    if(it->topic() == topic)
+    if(strcmp(it->topic(), topic) == 0)
     {
-//      Serial.println(topic.c_str());
+//      Serial.println(topic);
       it->exe(topic, payload, length);
     }
   }
