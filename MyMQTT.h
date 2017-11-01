@@ -23,6 +23,11 @@ class hand
       strcpy(m_topic, topic);
       m_handler_string = handler;
     };
+    hand(const char* topic, void (*handler)(const char* topic, int payload))
+    {
+      strcpy(m_topic, topic);
+      m_handler_int = handler;
+    };
     
     const char* topic() {return m_topic;};
     
@@ -39,11 +44,18 @@ class hand
         str[length] = 0;
         m_handler_string(topic, str);
       };
+      if(m_handler_int != NULL)
+      {
+        strncpy(str, (char*) payload, length);
+        str[length] = 0;
+        m_handler_int(topic, atoi(str));
+      };
     };
     
   private:
     void (*m_handler)(const char* topic, byte* payload, unsigned int length) = NULL;
     void (*m_handler_string)(const char* topic, const char* payload) = NULL;
+    void (*m_handler_int)(const char* topic, int payload) = NULL;
     char m_topic[32];
 };
 
@@ -55,6 +67,7 @@ class MyMQTT
     void init(const char* server, const char *name);
     void add_topic(const char* topic, void (*handler)(const char* topic, byte* payload, unsigned int length));
     void add_topic(const char* topic, void (*handler)(const char* topic, const char* payload));
+    void add_topic(const char* topic, void (*handler)(const char* topic, int payload));
     void publish(const char* topic, const char* payload);
     void publish(const char* topic, int payload);
     void publish_retain(const char* topic, const char* payload);

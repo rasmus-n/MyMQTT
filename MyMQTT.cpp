@@ -37,6 +37,11 @@ void MyMQTT::add_topic(const char* topic, void (*handler)(const char* topic, con
   m_handlers.push_back(hand{topic, handler});
 }
 
+void MyMQTT::add_topic(const char* topic, void (*handler)(const char* topic, int payload))
+{
+  m_handlers.push_back(hand{topic, handler});
+}
+
 void MyMQTT::publish(const char* topic, const char* payload)
 {
   m_client.publish(topic, payload);
