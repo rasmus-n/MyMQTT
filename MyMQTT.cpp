@@ -69,7 +69,7 @@ void MyMQTT::loop()
 {
   static long int last_mqtt_reconnect = 0;
   long int current_time = millis();
-  
+
   if (m_configured && !m_client.connected() && ((current_time - last_mqtt_reconnect) > 5000)) {
     reconnect();
     last_mqtt_reconnect = current_time;
@@ -84,13 +84,15 @@ void MyMQTT::reconnect()
 
   if (m_client.connect(m_name)) {
     Serial.println("connected");
-    
+
     Serial.println("Subscribing to:");
     for (auto it = begin(m_handlers); it != end(m_handlers); ++it)
     {
       Serial.println(it->topic());
       m_client.subscribe(it->topic());
-    }    
+      m_client.loop();
+      yield();
+    }
   }
   else
   {
