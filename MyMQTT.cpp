@@ -4,7 +4,7 @@ using namespace std;
 
 static MyMQTT *local_mqtt;
 
-void local_mqtt_callback(char* topic, byte* payload, unsigned int length)
+void local_mqtt_callback(char* topic, uint8_t* payload, unsigned int length)
 {
 //  Serial.print("local_mqtt_callback: ");
 //  Serial.println(topic);
@@ -27,7 +27,7 @@ void MyMQTT::init(const char* server, const char* name)
   m_configured = true;
 }
 
-void MyMQTT::add_topic(const char* topic, void (*handler)(const char* topic, byte* payload, unsigned int length))
+void MyMQTT::add_topic(const char* topic, void (*handler)(const char* topic, uint8_t* payload, unsigned int length))
 {
   m_handlers.push_back(hand{topic, handler});
 }
@@ -106,7 +106,7 @@ void MyMQTT::reconnect()
   }
 }
 
-void MyMQTT::mqtt_callback(const char* topic, byte* payload, unsigned int length)
+void MyMQTT::mqtt_callback(const char* topic, uint8_t* payload, unsigned int length)
 {
   for (auto it = begin(m_handlers); it != end(m_handlers); ++it)
   {
